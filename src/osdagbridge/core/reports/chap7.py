@@ -1,7 +1,33 @@
-from osdagbridge.core.reports.report_utils import _long_table
+from osdagbridge.core.reports.report_charts import concrete_rebar_chart, steel_chart
+from osdagbridge.core.reports.report_utils import _figure, _long_table
 
 
-def ch7_quantities(input_dict):
+def _num(input_dict, key):
+    try:
+        return float(input_dict.get(key))
+    except (TypeError, ValueError):
+        return None
+
+
+def ch7_quantities(input_dict, img_dir):
+    # Charts from the Table 7.1 totals; skipped when a value is not available
+    figs = ""
+    girders = _num(input_dict, "steel_girders_wt_total")
+    bracing = [_num(input_dict, k) for k in ("bracing_top_wt_total", "bracing_bot_wt_total", "bracing_diag_wt_total")]
+    steel = []
+    if girders is not None:
+        steel.append(("Girders", girders))
+    if any(b is not None for b in bracing):
+        steel.append(("Cross Bracing", sum(b for b in bracing if b is not None)))
+    if steel:
+        path = steel_chart(img_dir, [lbl for lbl, _ in steel], [wt for _, wt in steel])
+        figs += _figure(path, "Structural Steel Tonnage", width=r"0.8\textwidth") + "\n"
+    concrete = _num(input_dict, "concrete_deck_vol_total")
+    rebar = _num(input_dict, "rebar_deck_wt_total")
+    if concrete is not None and rebar is not None:
+        path = concrete_rebar_chart(img_dir, concrete, rebar)
+        figs += _figure(path, "Concrete Volume and Reinforcement Steel Weight", width=r"0.8\textwidth") + "\n"
+
     return r"""
 \chapter{Material Take-off \& Quantity Summary}
 \label{ch:material-takeoff}
@@ -27,6 +53,7 @@ def ch7_quantities(input_dict):
 \hline
 """) + r"""
 \endgroup
-"""
+
+""" + figs
 
 
