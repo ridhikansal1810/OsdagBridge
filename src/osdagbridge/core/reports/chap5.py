@@ -141,11 +141,14 @@ from osdagbridge.core.utils.common import (
     KEY_UTIL_SHEAR
 )
 
-from osdagbridge.core.reports.report_utils import _tex, _render_value, get_girder_entries, _long_table
+import re
+
+from osdagbridge.core.reports.report_charts import ur_chart
+from osdagbridge.core.reports.report_utils import _tex, _render_value, get_girder_entries, _long_table, _figure
 
 if TYPE_CHECKING:
     pass
-def ch5_design_checks(checks_data, bridge) -> str:
+def ch5_design_checks(checks_data, bridge, img_dir) -> str:
     """Chapter 5 — Design Checks.
 
     Parameters
@@ -154,6 +157,8 @@ def ch5_design_checks(checks_data, bridge) -> str:
         Raw checks payload (currently unused; data is sourced from bridge).
     bridge : ReportDataBridge
         Provides input_dict, output_dict, and helper methods.
+    img_dir : str
+        Folder for the Section 5.5 utilization ratio charts.
     """
     girder_entries = get_girder_entries(bridge.input_dict)
     if not girder_entries:
@@ -1006,13 +1011,6 @@ Fatigue Shear Resistance, $Q_r$ & IRC 22 Table 8 ($\phi d$, $N_{sc}$) & """
             _ed_type = str(_v)
             break
     _ed_is_cb = "brac" in _ed_type.strip().lower()
-    if _ed_is_cb:
-        _ed_moment_row = _row522(r"End Diaphragm --- Moment", _cb_row("compression"))
-        _ed_shear_row  = _row522(r"End Diaphragm --- Shear",  _cb_row("tension"))
-    else:
-        _ed_msg = r"Rolled / Welded section --- design to be added"
-        _ed_moment_row = _row522_msg(r"End Diaphragm --- Moment", _ed_msg)
-        _ed_shear_row  = _row522_msg(r"End Diaphragm --- Shear",  _ed_msg)
 
     # Crack width (slab): governing crack width vs limit from the deck designer
     # (frequent SLS combination). _dk_gov_wk is the max of bottom/top/overhang wk.
@@ -1039,27 +1037,49 @@ Fatigue Shear Resistance, $Q_r$ & IRC 22 Table 8 ($\phi d$, $N_{sc}$) & """
         (_ur_522(_dk_gov_wk / _wk_lim) if (_dk_has and _wk_lim > 0) else "---"),
     )
 
-    _t522 = [
-        _row522(r"Girder --- Moment",             _dcr_row({1})),
-        _row522(r"Girder --- Shear",              _dcr_row({2})),
-        _row522(r"Girder --- LTB (constr.)",      _dcr_row({5})),
-        _row522(r"Girder --- Deflection",         _dcr_row({13, 14}, fallback_unit="mm")),
-        _row522(r"Girder --- Stress",             _dcr_row({11}, fallback_unit="MPa")),
-        _row522(r"Girder --- Fatigue",            _dcr_row({8, 9}, fallback_unit="MPa")),
-        _row522(r"Transverse Shear (slab)",       _dcr_row({16})),
-        _row522(r"Crack Width (slab)",            _crack_cells),
-        _row522(r"Deck --- Flexure (sagging)",    _deck_row(KEY_DD_M_ULS_SAG, KEY_DD_MU_BOT, "kN-m/m")),
-        _row522(r"Deck --- Flexure (hogging)",    _deck_row(KEY_DD_M_ULS_HOG, KEY_DD_MU_TOP, "kN-m/m")),
-        _row522(r"Deck --- Cantilever Overhang",  _deck_row(KEY_DD_M_ULS_OH, KEY_DD_MU_OH, "kN-m/m", is_oh=True)),
-        _row522(r"Deck --- Punching Shear",       _deck_row(KEY_DD_PUNCH_VED, KEY_DD_VRD_C_MPA, "MPa")),
-        _row522(r"Deck --- One-Way Shear",        _deck_row(KEY_DD_SHEAR_VED, KEY_DD_SHEAR_VRDC, "kN/m")),
-        _row522(r"Cross Bracing --- Compression", _cb_row("compression")),
-        _row522(r"Cross Bracing --- Tension",     _cb_row("tension")),
-        _row522(r"Cross Bracing --- Slenderness", _cb_slender_row()),
-        _ed_moment_row,
-        _ed_shear_row,
+    # (element, row label, cells) — the same rows feed Table 5.22 and the UR charts
+    _checks = [
+        ("Steel Plate Girders", r"Girder --- Moment",             _dcr_row({1})),
+        ("Steel Plate Girders", r"Girder --- Shear",              _dcr_row({2})),
+        ("Steel Plate Girders", r"Girder --- LTB (constr.)",      _dcr_row({5})),
+        ("Steel Plate Girders", r"Girder --- Deflection",         _dcr_row({13, 14}, fallback_unit="mm")),
+        ("Steel Plate Girders", r"Girder --- Stress",             _dcr_row({11}, fallback_unit="MPa")),
+        ("Steel Plate Girders", r"Girder --- Fatigue",            _dcr_row({8, 9}, fallback_unit="MPa")),
+        ("Concrete Deck Slab",  r"Transverse Shear (slab)",       _dcr_row({16})),
+        ("Concrete Deck Slab",  r"Crack Width (slab)",            _crack_cells),
+        ("Concrete Deck Slab",  r"Deck --- Flexure (sagging)",    _deck_row(KEY_DD_M_ULS_SAG, KEY_DD_MU_BOT, "kN-m/m")),
+        ("Concrete Deck Slab",  r"Deck --- Flexure (hogging)",    _deck_row(KEY_DD_M_ULS_HOG, KEY_DD_MU_TOP, "kN-m/m")),
+        ("Concrete Deck Slab",  r"Deck --- Cantilever Overhang",  _deck_row(KEY_DD_M_ULS_OH, KEY_DD_MU_OH, "kN-m/m", is_oh=True)),
+        ("Concrete Deck Slab",  r"Deck --- Punching Shear",       _deck_row(KEY_DD_PUNCH_VED, KEY_DD_VRD_C_MPA, "MPa")),
+        ("Concrete Deck Slab",  r"Deck --- One-Way Shear",        _deck_row(KEY_DD_SHEAR_VED, KEY_DD_SHEAR_VRDC, "kN/m")),
+        ("Cross Bracing",       r"Cross Bracing --- Compression", _cb_row("compression")),
+        ("Cross Bracing",       r"Cross Bracing --- Tension",     _cb_row("tension")),
+        ("Cross Bracing",       r"Cross Bracing --- Slenderness", _cb_slender_row()),
     ]
+    if _ed_is_cb:
+        _checks += [
+            ("End Diaphragms", r"End Diaphragm --- Moment", _cb_row("compression")),
+            ("End Diaphragms", r"End Diaphragm --- Shear",  _cb_row("tension")),
+        ]
+    _t522 = [_row522(label, cells) for _, label, cells in _checks]
+    if not _ed_is_cb:
+        _ed_msg = r"Rolled / Welded section --- design to be added"
+        _t522 += [_row522_msg(r"End Diaphragm --- Moment", _ed_msg),
+                  _row522_msg(r"End Diaphragm --- Shear",  _ed_msg)]
     t522_content = "\n".join(_t522)
+
+    # Section 5.5 charts: one per element, from the numeric URs of Table 5.22
+    ur_figs = ""
+    for element in ("Steel Plate Girders", "Concrete Deck Slab", "Cross Bracing", "End Diaphragms"):
+        labels, urs = [], []
+        for el, label, cells in _checks:
+            m = re.search(r"\d+\.\d+", cells[3])
+            if el == element and m:
+                labels.append(label.split(" --- ")[-1])
+                urs.append(float(m.group()))
+        if urs:
+            path = ur_chart(img_dir, "ur_" + element.lower().replace(" ", "_"), element, labels, urs)
+            ur_figs += _figure(path, "Utilization Ratio --- " + element, width=r"0.8\textwidth") + "\n"
 
     return r"""
 \chapter{Design Checks}
@@ -1387,5 +1407,6 @@ End diaphragms at the supports transfer transverse loads to the bearings, restra
 """) + r"""
 \noindent\textit{Note: UR = Demand / Capacity. All values $\leq 1.0$ indicate passing checks. The governing check for each component is highlighted in the individual design check sections above.}
 
+""" + ur_figs + r"""
 """
 
