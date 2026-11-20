@@ -55,13 +55,13 @@ def _max_member_efficiency(pair_designs):
 
 
 def executive_summary(input_dict, output_dict, fig_paths) -> str:
-    plan_fig = _figure(fig_paths.get('girder_top'), 'Figure 1 -- Overall Bridge Plan', width=r'0.9\textwidth', numbered=False)
+    plan_fig = _figure(fig_paths.get('girder_top'), 'Figure 1 -- Overall Bridge Plan', numbered=False)
     cs_fig = _figure(fig_paths.get('cross_section'),
                      'Figure 2 -- Typical Cross-Section (with girder, deck, barriers, footpath)',
-                     width=r'0.9\textwidth', numbered=False)
+                     numbered=False)
     geom_fig = _figure(fig_paths.get('final_geometry'),
                        'Figure 3 -- 3D View of Bridge Superstructure',
-                       width=r'0.9\textwidth', numbered=False)
+                       numbered=False)
 
     # All girders share the same section, governing check, and UR.
     # The section designation is produced by the designer pipeline, so it lives
@@ -186,8 +186,6 @@ This section provides a concise summary of the bridge design, key inputs, govern
 \section*{Project Overview}
 \addcontentsline{toc}{section}{Project Overview}
 \label{sec:project-overview}
-
-
 """ + _long_table(r"|L{5.5cm}|L{8.5cm}|", None, None, r"""
 \hline
 \textbf{Bridge Type} & """ + (_render_value(input_dict, KEY_STRUCTURE_TYPE)) + r""" \\

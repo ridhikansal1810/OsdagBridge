@@ -1,3 +1,4 @@
+from osdagbridge.core.reports import styles as st
 from osdagbridge.core.reports.report_charts import concrete_rebar_chart, steel_chart
 from osdagbridge.core.reports.report_utils import _figure, _long_table
 
@@ -21,19 +22,17 @@ def ch7_quantities(input_dict, img_dir):
         steel.append(("Cross Bracing", sum(b for b in bracing if b is not None)))
     if steel:
         path = steel_chart(img_dir, [lbl for lbl, _ in steel], [wt for _, wt in steel])
-        figs += _figure(path, "Structural Steel Tonnage", width=r"0.8\textwidth") + "\n"
+        figs += _figure(path, "Structural Steel Tonnage", width=st.CHART_WIDTH) + "\n"
     concrete = _num(input_dict, "concrete_deck_vol_total")
     rebar = _num(input_dict, "rebar_deck_wt_total")
     if concrete is not None and rebar is not None:
         path = concrete_rebar_chart(img_dir, concrete, rebar)
-        figs += _figure(path, "Concrete Volume and Reinforcement Steel Weight", width=r"0.8\textwidth") + "\n"
+        figs += _figure(path, "Concrete Volume and Reinforcement Steel Weight", width=st.CHART_WIDTH) + "\n"
 
     return r"""
 \chapter{Material Take-off \& Quantity Summary}
 \label{ch:material-takeoff}
 
-\begingroup
-\setlength{\tabcolsep}{3.5pt}
 """ + _long_table(r"|C{1.0cm}|L{3.8cm}|C{2.6cm}|C{1.8cm}|C{1.8cm}|C{1.8cm}|C{1.8cm}|", r"Bill of Materials (Steel, Concrete, and Reinforcement Quantities)", r"\textbf{S.N.} & \textbf{Item Description} & \textbf{Volume} & \textbf{Quantity} & \textbf{Total Volume} & \textbf{Weight (MT)} & \textbf{Total Weight (MT)} \\", r"""
 1 & Structural Steel (IS 2062) for Girders & """ + str(input_dict.get("steel_girders_vol_formula", "N.A.")) + r""" & """ + str(input_dict.get("steel_girders_qty", "N.A.")) + r""" & """ + str(input_dict.get("steel_girders_vol_total", "N.A.")) + r""" & """ + str(input_dict.get("steel_girders_wt_single", "N.A.")) + r""" & """ + str(input_dict.get("steel_girders_wt_total", "N.A.")) + r""" \\
 \hline
@@ -51,8 +50,7 @@ def ch7_quantities(input_dict, img_dir):
 \hline
 6 & Crash Barrier & """ + str(input_dict.get("crash_barrier_vol_formula", "N.A.")) + r""" & """ + str(input_dict.get("crash_barrier_qty", "N.A.")) + r""" & """ + str(input_dict.get("crash_barrier_vol_total", "N.A.")) + r""" & """ + str(input_dict.get("crash_barrier_wt_single", "N.A.")) + r""" & """ + str(input_dict.get("crash_barrier_wt_total", "N.A.")) + r""" \\
 \hline
-""") + r"""
-\endgroup
+""", compact=True) + r"""
 
 """ + figs
 

@@ -118,6 +118,7 @@ from osdagbridge.core.utils.common import (
     KEY_TL_TEMP_RISE
 )
 
+from osdagbridge.core.reports import styles as st
 from osdagbridge.core.reports.report_utils import _tex
 from .executive_summary import executive_summary
 from .chap1 import ch1_project_info
@@ -152,11 +153,30 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
     jn = _tex(job_number)
     rd = _tex(report_date)
     rv = _tex(report_version)
+    # Header and footer shared by the main and plain page styles
+    head_foot = r"""
+  \fancyhf{}
+  \fancyhead[L]{""" + pn + r""" $|$ """ + jn + r"""}
+  \fancyhead[R]{""" + rd + r""" $|$ """ + rv + r"""}
+  \fancyfoot[L]{""" + st.FOOTER_TEXT + r"""}
+  \fancyfoot[R]{Page \thepage\ of \pageref{LastPage}}
+  \renewcommand{\headrule}{\color{osdagGreen}\hrule width\headwidth height """ + st.HF_RULE_WIDTH + r""" \vspace{2pt}}
+  \renewcommand{\footrule}{%
+    \ifbool{hasSDonPage}{%
+      \vspace{-20pt}%
+      \hbox to \headwidth{\textcolor{black}{\footnotesize\textit{* Software default value}}\hfil}%
+      \vspace{4pt}%
+    }{%
+      \vspace{-8pt}%
+    }%
+    \color{osdagGreen}\hrule width\headwidth height """ + st.HF_RULE_WIDTH + r""" \vspace{6pt}%
+  }
+"""
     return r"""
-\documentclass[12pt,a4paper]{report}
+\documentclass[""" + st.FONT_SIZE + "," + st.PAPER + r"""]{report}
 
 % Packages
-\usepackage[a4paper, margin=1in, headheight=18pt]{geometry}
+\usepackage[""" + st.PAPER + ", margin=" + st.MARGIN + ", headheight=" + st.HEAD_HEIGHT + r"""]{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -175,7 +195,8 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
     labelfont=bf,
     justification=raggedright,
     singlelinecheck=false,
-    format=plain
+    format=plain,
+    skip=""" + st.CAPTION_SKIP + r"""
 }
 \usepackage{subcaption}
 \usepackage{multirow}
@@ -193,13 +214,16 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
 \numberwithin{table}{chapter}
 \numberwithin{figure}{chapter}
 % Table layout and spacing: consistent padding, row height, and longtable pre/post skips
-\setlength{\tabcolsep}{6pt}
-\renewcommand{\arraystretch}{1.12}
-\setlength{\LTpre}{0pt}
-\setlength{\LTpost}{6pt}
+\setlength{\tabcolsep}{""" + st.TABCOLSEP + r"""}
+\newcommand{\compacttables}{\setlength{\tabcolsep}{""" + st.TABCOLSEP_COMPACT + r"""}}
+\renewcommand{\arraystretch}{""" + st.ARRAY_STRETCH + r"""}
+\newlength{\rowsep}
+\setlength{\rowsep}{""" + st.ROW_SEP + r"""}
+\setlength{\LTpre}{""" + st.TABLE_SPACE_BEFORE + r"""}
+\setlength{\LTpost}{""" + st.TABLE_SPACE_AFTER + r"""}
 % Table rules (outline thickness) and small extra row height for clarity
-\setlength{\arrayrulewidth}{0.5pt}
-\setlength{\extrarowheight}{0.6pt}
+\setlength{\arrayrulewidth}{""" + st.TABLE_RULE_WIDTH + r"""}
+\setlength{\extrarowheight}{""" + st.EXTRA_ROW_HEIGHT + r"""}
 
 % Prevent tables from overflowing past the page bottom:
 % if fewer than 5 baseline-skips remain, break to the next page first.
@@ -210,53 +234,20 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
 \patchcmd{\@cline}{\noalign{\vskip-\arrayrulewidth}}{\noalign{\nobreak\vskip-\arrayrulewidth}}{}{}
 \makeatother
 
-\definecolor{osdagGreen}{HTML}{91B014}
+\definecolor{osdagGreen}{HTML}{""" + st.BRAND_COLOR + r"""}
+\definecolor{fail}{HTML}{""" + st.FAIL_COLOR + r"""}
 
-\fancypagestyle{main}{
-  \fancyhf{}
-  \fancyhead[L]{""" + pn + r""" $|$ """ + jn + r"""}
-  \fancyhead[R]{""" + rd + r""" $|$ """ + rv + r"""}
-  \fancyfoot[L]{Osdag $|$ FOSSEE $|$ Indian Institute of Technology Bombay}
-  \fancyfoot[R]{Page \thepage\ of \pageref{LastPage}}
-  \renewcommand{\headrule}{\color{osdagGreen}\hrule width\headwidth height 1pt \vspace{2pt}}
-  \renewcommand{\footrule}{%
-    \ifbool{hasSDonPage}{%
-      \vspace{-20pt}%
-      \hbox to \headwidth{\textcolor{black}{\footnotesize\textit{* Software default value}}\hfil}%
-      \vspace{4pt}%
-    }{%
-      \vspace{-8pt}%
-    }%
-    \color{osdagGreen}\hrule width\headwidth height 1pt \vspace{6pt}%
-  }
-}
-\fancypagestyle{plain}{
-  \fancyhf{}
-  \fancyhead[L]{""" + pn + r""" $|$ """ + jn + r"""}
-  \fancyhead[R]{""" + rd + r""" $|$ """ + rv + r"""}
-  \fancyfoot[L]{Osdag $|$ FOSSEE $|$ Indian Institute of Technology Bombay}
-  \fancyfoot[R]{Page \thepage\ of \pageref{LastPage}}
-  \renewcommand{\headrule}{\color{osdagGreen}\hrule width\headwidth height 1pt \vspace{2pt}}
-  \renewcommand{\footrule}{%
-    \ifbool{hasSDonPage}{%
-      \vspace{-20pt}%
-      \hbox to \headwidth{\textcolor{black}{\footnotesize\textit{* Software default value}}\hfil}%
-      \vspace{4pt}%
-    }{%
-      \vspace{-8pt}%
-    }%
-    \color{osdagGreen}\hrule width\headwidth height 1pt \vspace{6pt}%
-  }
-}
+\fancypagestyle{main}{""" + head_foot + r"""}
+\fancypagestyle{plain}{""" + head_foot + r"""}
 \fancypagestyle{firstpage}{
   \fancyhf{}
   \renewcommand{\headrulewidth}{0pt}
-  \fancyfoot[L]{Osdag $|$ FOSSEE $|$ Indian Institute of Technology Bombay}
+  \fancyfoot[L]{""" + st.FOOTER_TEXT + r"""}
   \fancyfoot[R]{Page \thepage\ of \pageref{LastPage}}
-  \renewcommand{\footrule}{\vspace{-8pt}\color{osdagGreen}\hrule width\headwidth height 1pt \vspace{6pt}}
+  \renewcommand{\footrule}{\vspace{-8pt}\color{osdagGreen}\hrule width\headwidth height """ + st.HF_RULE_WIDTH + r""" \vspace{6pt}}
 }
 \pagestyle{main}
-\setstretch{1.15}
+\setstretch{""" + st.LINE_SPREAD + r"""}
 \setlength{\emergencystretch}{3em}
 
 % Custom Commands
@@ -599,7 +590,7 @@ class ReportDataBridge:
                 ur = float(val)
                 if ur <= 1.0:
                     return r"\textcolor{black}{PASS}"
-                return r"\textcolor{red}{FAIL}"
+                return r"\textcolor{fail}{FAIL}"
         except (TypeError, ValueError):
             pass
         return ""
