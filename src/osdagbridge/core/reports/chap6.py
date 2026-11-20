@@ -35,7 +35,6 @@ def ch6_drawings(fig_paths):
     cbdia  = _figure(fig_paths.get('cb_diagram'),         'Cross Bracing Layout', label='fig:cb-layout')
 
     def _sec_cell(path, title, label=None):
-        """One minipage cell: image above, numbered below (for side-by-side row)."""
         cell = MiniPage(width=NoEscape(r'0.31\textwidth'), pos='t')
         cell.append(NoEscape(r'\centering'))
         if path:
@@ -48,7 +47,6 @@ def ch6_drawings(fig_paths):
         return cell
 
     def _sec_row(*cells):
-        """Three section views side by side in one figure."""
         fig = Figure(position='H')
         for i, cell in enumerate(cells):
             if i:

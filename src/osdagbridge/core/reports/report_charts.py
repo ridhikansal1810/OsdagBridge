@@ -1,7 +1,5 @@
-# =============================================================================
-# Bar charts embedded in the design report (saved as PNG, then \includegraphics)
-# Uses matplotlib.figure.Figure directly so the GUI's pyplot backend is untouched.
-# =============================================================================
+# Bar charts for the design report. Uses matplotlib.figure.Figure, not pyplot,
+# so the GUI's plotting backend is not touched.
 import os
 
 from matplotlib.figure import Figure
@@ -25,7 +23,6 @@ def _bars(ax, labels, values, ylabel, color):
 
 
 def ur_chart(img_dir, name, title, labels, urs):
-    """Utilization ratio bars with the UR = 1.0 limit as a red dashed line."""
     fig = Figure(figsize=st.CHART_SIZE)
     ax = fig.subplots()
     bars = ax.bar(labels, urs, color=["#" + (st.BRAND_COLOR if u <= 1.0 else st.FAIL_COLOR) for u in urs])
@@ -42,7 +39,6 @@ def ur_chart(img_dir, name, title, labels, urs):
 
 
 def steel_chart(img_dir, labels, tonnes):
-    """Structural steel tonnage per member type."""
     fig = Figure(figsize=st.CHART_SIZE)
     ax = fig.subplots()
     _bars(ax, labels, tonnes, "Weight (MT)", "#" + st.BAR_COLOR)
@@ -51,7 +47,6 @@ def steel_chart(img_dir, labels, tonnes):
 
 
 def concrete_rebar_chart(img_dir, concrete_m3, rebar_t):
-    """Deck concrete volume and reinforcement weight, each on its own axis."""
     fig = Figure(figsize=st.CHART_SIZE)
     ax1, ax2 = fig.subplots(1, 2)
     _bars(ax1, ["Deck Concrete"], [concrete_m3], "Volume (m$^3$)", "#" + st.CONCRETE_COLOR)

@@ -261,21 +261,11 @@ def _girder_tables(input_dict, n_girders):
     return (r"""
 \newpage
 
-""" + _long_table(r"|L{2.2cm}|L{1.8cm}|p{3.8cm}|p{3.8cm}|p{3.8cm}|", r"Girder General Information", r"\textbf{Girder} & \textbf{Member ID} & \textbf{Design Mode} & \textbf{Girder Type} & \textbf{Girder Symmetry} \\[\rowsep]", r"""
-"""
-            + gen_rows
-            + r"""""") + r"""
+""" + _long_table(r"|L{2.2cm}|L{1.8cm}|p{3.8cm}|p{3.8cm}|p{3.8cm}|", r"Girder General Information", r"\textbf{Girder} & \textbf{Member ID} & \textbf{Design Mode} & \textbf{Girder Type} & \textbf{Girder Symmetry} \\[\rowsep]", gen_rows) + r"""
 
-""" + _long_table(r"|L{1.8cm}|L{2.3cm}|L{1.8cm}|p{4.8cm}|p{4.8cm}|", r"Girder Section Dimensions", r"\textbf{Girder} & \textbf{Total Depth, D (mm)} & \textbf{Web, $t_w$ (mm)} & \textbf{Top Flange (b\textsubscript{tf}, t\textsubscript{tf}) mm} & \textbf{Bottom Flange (b\textsubscript{bf}, t\textsubscript{bf}) mm} \\[\rowsep]", r"""
-"""
-            + dim_rows
-            + r"""""") + r"""
+""" + _long_table(r"|L{1.8cm}|L{2.3cm}|L{1.8cm}|p{4.8cm}|p{4.8cm}|", r"Girder Section Dimensions", r"\textbf{Girder} & \textbf{Total Depth, D (mm)} & \textbf{Web, $t_w$ (mm)} & \textbf{Top Flange (b\textsubscript{tf}, t\textsubscript{tf}) mm} & \textbf{Bottom Flange (b\textsubscript{bf}, t\textsubscript{bf}) mm} \\[\rowsep]", dim_rows) + r"""
 
-""" + _long_table(r"|L{1.4cm}|p{2.2cm}|p{2.2cm}|p{3.0cm}|p{2.4cm}|p{2.2cm}|", r"Girder Restraint and Stiffener Details", r"\textbf{Girder} & \textbf{Torsional / Warping Restraint} & \textbf{Web Philosophy} & \textbf{Intermediate Stiffeners} & \textbf{Longitudinal Stiffeners} & \textbf{Bearing Stiffener} \\[\rowsep]", r"""
-
-"""
-            + rst_rows
-            + r"""""") + r"""
+""" + _long_table(r"|L{1.4cm}|p{2.2cm}|p{2.2cm}|p{3.0cm}|p{2.4cm}|p{2.2cm}|", r"Girder Restraint and Stiffener Details", r"\textbf{Girder} & \textbf{Torsional / Warping Restraint} & \textbf{Web Philosophy} & \textbf{Intermediate Stiffeners} & \textbf{Longitudinal Stiffeners} & \textbf{Bearing Stiffener} \\[\rowsep]", rst_rows) + r"""
 """)
 
 
@@ -320,15 +310,9 @@ def _bracing_tables(input_dict, n_girders):
     return (r"""
 \newpage
 
-""" + _long_table(r"|L{2.2cm}|L{2.2cm}|L{3.0cm}|L{2.5cm}|C{1.8cm}|C{1.8cm}|", r"Member Properties: Cross Bracing Details", r"\textbf{Location} & \textbf{Member IDs} & \textbf{Type of Bracing} & \textbf{Bracing Section} & \textbf{Spacing (m)} \\", r"""
-"""
-+ cb_rows
-+ r"""""", compact=True) + r"""
+""" + _long_table(r"|L{2.2cm}|L{2.2cm}|L{3.0cm}|L{2.5cm}|C{1.8cm}|C{1.8cm}|", r"Member Properties: Cross Bracing Details", r"\textbf{Location} & \textbf{Member IDs} & \textbf{Type of Bracing} & \textbf{Bracing Section} & \textbf{Spacing (m)} \\", cb_rows, compact=True) + r"""
 
-""" + _long_table(r"|L{2.2cm}|L{2.2cm}|L{3.0cm}|L{2.5cm}|C{1.8cm}|C{1.8cm}|", r"Member Properties: End Diaphragm Details", r"\textbf{Location} & \textbf{Member IDs} & \textbf{Type of Bracing} & \textbf{Bracing Section} \\", r"""
-"""
-+ ed_rows
-+ r"""""", compact=True) + r"""
+""" + _long_table(r"|L{2.2cm}|L{2.2cm}|L{3.0cm}|L{2.5cm}|C{1.8cm}|C{1.8cm}|", r"Member Properties: End Diaphragm Details", r"\textbf{Location} & \textbf{Member IDs} & \textbf{Type of Bracing} & \textbf{Bracing Section} \\", ed_rows, compact=True) + r"""
 """)
 
 

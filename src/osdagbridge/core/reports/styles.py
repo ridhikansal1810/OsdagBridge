@@ -1,9 +1,5 @@
-# =============================================================================
-# Report styles — single source of truth for the design report's look.
-# preamble() in report_generator.py turns these into LaTeX settings, lengths
-# (\rowsep), commands (\compacttables) and colours (osdagGreen, fail); chapter
-# files use those LaTeX names, and Python code imports the values below.
-# =============================================================================
+# Formatting values for the design report. The preamble turns these into LaTeX
+# (\rowsep, \compacttables, osdagGreen, fail); Python code imports them directly.
 
 # Page layout
 FONT_SIZE = "12pt"

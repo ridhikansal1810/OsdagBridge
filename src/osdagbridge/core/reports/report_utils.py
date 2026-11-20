@@ -3,7 +3,6 @@ import re
 from pylatex import Figure, LongTable, NoEscape
 
 from osdagbridge.core.reports import styles as st
-
 from osdagbridge.core.utils.common import (
     KEY_MP_GD_MEMBER_ID,
     KEY_MP_GD_SELECT_GIRDER,
@@ -11,8 +10,9 @@ from osdagbridge.core.utils.common import (
     KEY_TS_NO_OF_GIRDERS
 )
 
+
 def _fit_widths(spec):
-    """Scale the cm column widths down so the table fits the text width."""
+    # shrink cm column widths so the table fits the text width
     widths = [float(w) for w in re.findall(r'\{([\d.]+)cm\}', spec)]
     room = st.TEXT_WIDTH_CM - st.CELL_PAD_CM * len(widths)
     if not widths or sum(widths) <= room:
@@ -22,13 +22,8 @@ def _fit_widths(spec):
 
 
 def _long_table(spec, caption, header, body, label=None, compact=False):
-    """Longtable whose caption and header row repeat on every page.
-
-    compact=True uses the narrower cell padding (\\compacttables) for wide tables.
-    """
-    # A row followed by \cline belongs to a \multirow group: \\* (plus the
-    # \cline patch in the preamble) stops a page break inside the group, so
-    # the group label never lands in the footer.
+    """Longtable whose caption and header row repeat on every page."""
+    # keep \multirow groups (rows followed by \cline) on one page
     body = re.sub(r'\\\\(\[[^\]]*\])?(\s*\\cline)', r'\\\\*\1\2', body)
     table = LongTable(NoEscape(_fit_widths(spec)))
     if caption:
@@ -120,7 +115,6 @@ def get_girder_entries(input_dict):
 
 
 def _figure(path, caption, width=st.FIGURE_WIDTH, numbered=True, label=None):
-    """Figure with the image, or a placeholder box when there is no image."""
     fig = Figure(position='H')
     if path:
         fig.add_image(path.replace('\\', '/'), width=NoEscape(width))
