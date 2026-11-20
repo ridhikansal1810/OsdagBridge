@@ -1,3 +1,5 @@
+import re
+
 from pylatex import LongTable, NoEscape
 
 from osdagbridge.core.utils.common import (
@@ -7,10 +9,27 @@ from osdagbridge.core.utils.common import (
     KEY_TS_NO_OF_GIRDERS
 )
 
+TEXT_WIDTH_CM = 15.9   # A4 with 1 in margins
+CELL_PAD_CM = 0.43     # 2 x \tabcolsep (6pt) + rule
+
+
+def _fit_widths(spec):
+    """Scale the cm column widths down so the table fits the text width."""
+    widths = [float(w) for w in re.findall(r'\{([\d.]+)cm\}', spec)]
+    room = TEXT_WIDTH_CM - CELL_PAD_CM * len(widths)
+    if not widths or sum(widths) <= room:
+        return spec
+    k = room / sum(widths)
+    return re.sub(r'\{([\d.]+)cm\}', lambda m: '{%.2fcm}' % (float(m.group(1)) * k), spec)
+
 
 def _long_table(spec, caption, header, body, label=None):
     """Longtable whose caption and header row repeat on every page."""
-    table = LongTable(NoEscape(spec))
+    # A row followed by \cline belongs to a \multirow group: \\* (plus the
+    # \cline patch in the preamble) stops a page break inside the group, so
+    # the group label never lands in the footer.
+    body = re.sub(r'\\\\(\[[^\]]*\])?(\s*\\cline)', r'\\\\*\1\2', body)
+    table = LongTable(NoEscape(_fit_widths(spec)))
     if caption:
         table.append(NoEscape(r'\caption{\textbf{' + caption + '}}'))
         if label:

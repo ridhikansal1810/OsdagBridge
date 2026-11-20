@@ -58,7 +58,7 @@ form the basis of all design calculations in this software.
 
 \begingroup
 \setlength{\tabcolsep}{3.5pt}
-""" + _long_table(r"|c|c|p{13cm}|", r"IRC Codes", r"\textbf{Code} & \textbf{Year} & \textbf{Title / Scope} \\ ", r"""
+""" + _long_table(r"|L{2.6cm}|C{1.2cm}|L{10.4cm}|", r"IRC Codes", r"\textbf{Code} & \textbf{Year} & \textbf{Title / Scope} \\ ", r"""
 IRC 5 & 2015 & General Features of Design - carriageway widths, kerb, footpath dimensions \\ 
 \hline
 IRC 6 & 2017 & Loads and Load Combinations - dead load, live load, impact, wind, temperature, etc. \\ 
@@ -75,7 +75,7 @@ IRC SP 114 & 2018 & Seismic Design of Road Bridges \\
 
 \begingroup
 \setlength{\tabcolsep}{3.5pt}
-""" + _long_table(r"|c|c|p{13cm}|", r"IS Codes", r"\textbf{Code} & \textbf{Year} & \textbf{Scope} \\", r"""
+""" + _long_table(r"|L{2.6cm}|C{1.2cm}|L{10.4cm}|", r"IS Codes", r"\textbf{Code} & \textbf{Year} & \textbf{Scope} \\", r"""
 IS 800 & 2007 & Steel construction - tension, compression, bending, shear, LTB, stiffeners, combined checks \\
 \hline
 IS 456 & 2000 & Concrete - simplified stress-block for deck moment capacity \\

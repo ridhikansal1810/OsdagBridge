@@ -156,7 +156,7 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
 \documentclass[12pt,a4paper]{report}
 
 % Packages
-\usepackage[a4paper, margin=1in]{geometry}
+\usepackage[a4paper, margin=1in, headheight=18pt]{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -205,6 +205,10 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
 % if fewer than 5 baseline-skips remain, break to the next page first.
 % (longtable does its own check, so it is not hooked here.)
 \BeforeBeginEnvironment{table}{\needspace{5\baselineskip}}
+% No page break below a \cline, so \multirow groups stay on one page
+\makeatletter
+\patchcmd{\@cline}{\noalign{\vskip-\arrayrulewidth}}{\noalign{\nobreak\vskip-\arrayrulewidth}}{}{}
+\makeatother
 
 \definecolor{osdagGreen}{HTML}{91B014}
 
@@ -253,6 +257,7 @@ def preamble(project_name, job_number, report_date, report_version='Rev 0'):
 }
 \pagestyle{main}
 \setstretch{1.15}
+\setlength{\emergencystretch}{3em}
 
 % Custom Commands
 \newcommand{\placeholder}[1]{\textit{\textless #1\textgreater}}
