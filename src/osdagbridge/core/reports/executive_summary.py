@@ -2,7 +2,7 @@
 # EXECUTIVE SUMMARY
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from osdagbridge.core.reports.report_utils import _fig_or_placeholder, _render_value, _tex, get_girder_entries
+from osdagbridge.core.reports.report_utils import _fig_or_placeholder, _render_value, _tex, get_girder_entries, _long_table
 from osdagbridge.core.utils.common import (
     KEY_CARRIAGEWAY_WIDTH,
     KEY_SD_SECTION_DESIGNATION,
@@ -163,19 +163,15 @@ def executive_summary(input_dict, output_dict, fig_paths) -> str:
     table1 = (r'\noindent\textbf{Table 1 -- Final Bridge Geometry (after optimization)}' + '\n\n'
               r'\vspace{0.4em}' + '\n'
               r'\noindent' + '\n'
-              r'\begin{tabular}{' + col_spec + '}\n'
-              r'\hline' + '\n'
-              + header_row +
-              r'\hline' + '\n'
-              + member_id_row +
-              r'\hline' + '\n'
-              + sections + '\n'
-              r'\hline' + '\n'
-              + gov_checks + '\n'
-              r'\hline' + '\n'
-              + urs + '\n'
-              r'\hline' + '\n'
-              r'\end{tabular}')
+              + _long_table(col_spec, None, header_row,
+                            member_id_row +
+                            r'\hline' + '\n'
+                            + sections + '\n'
+                            r'\hline' + '\n'
+                            + gov_checks + '\n'
+                            r'\hline' + '\n'
+                            + urs + '\n'
+                            r'\hline'))
 
     return r"""
 \newpage
@@ -190,7 +186,7 @@ This section provides a concise summary of the bridge design, key inputs, govern
 \label{sec:project-overview}
 
 
-\begin{tabular}{|L{5.5cm}|L{8.5cm}|}
+""" + _long_table(r"|L{5.5cm}|L{8.5cm}|", None, None, r"""
 \hline
 \textbf{Bridge Type} & """ + (_render_value(input_dict, KEY_STRUCTURE_TYPE)) + r""" \\
 \hline
@@ -212,7 +208,7 @@ This section provides a concise summary of the bridge design, key inputs, govern
 \hline
 \textbf{Overall Utilization Ratio (max)} & """ + ur + r""" \\
 \hline
-\end{tabular}
+""") + r"""
 
 
 """ + plan_fig + r"""

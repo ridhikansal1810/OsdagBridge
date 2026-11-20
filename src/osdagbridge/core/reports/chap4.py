@@ -5,7 +5,7 @@ from osdagbridge.core.utils.common import (
     KEY_SD_DEFL_LIVE,
     KEY_SD_DEFL_TOTAL,
 )
-from osdagbridge.core.reports.report_utils import _tex, _fig_embed
+from osdagbridge.core.reports.report_utils import _tex, _fig_embed, _long_table
 
 if TYPE_CHECKING:
     from .report_generator import ReportDataBridge
@@ -86,7 +86,7 @@ A grillage model was used for structural analysis. The deck is idealized as a gr
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.25}
 
-\begin{longtable}{|
+""" + _long_table(r"""|
 >{\centering\arraybackslash}p{3.1cm}|
 >{\centering\arraybackslash}p{1.7cm}|
 >{\centering\arraybackslash}p{1.2cm}|
@@ -95,10 +95,8 @@ A grillage model was used for structural analysis. The deck is idealized as a gr
 >{\centering\arraybackslash}p{1.2cm}|
 >{\centering\arraybackslash}p{1.3cm}|
 >{\centering\arraybackslash}p{1.6cm}|
->{\centering\arraybackslash}p{1.6cm}|}
-
-\caption{\textbf{Summary of Maximum Demands}}\\
-\hline
+>{\centering\arraybackslash}p{1.6cm}|
+""", r"Summary of Maximum Demands", r"""
 \multirow{2}{*}{\makecell{\textbf{Load}\\\textbf{Case/}\\\textbf{Comb.}}}
 & \multicolumn{3}{c|}{\textbf{Bending Moment}}
 & \multicolumn{3}{c|}{\textbf{Shear Force}}
@@ -113,53 +111,27 @@ A grillage model was used for structural analysis. The deck is idealized as a gr
 & \makecell{\textbf{Loc.}\\\textbf{(m)}}
 & \makecell{\textbf{Left}}
 & \makecell{\textbf{Right }}\\
-\hline
-\endfirsthead
+""", r"""
 
-\hline
-\multirow{2}{*}{\makecell{\textbf{Load}\\\textbf{Case/}\\\textbf{Comb.}}}
-& \multicolumn{3}{c|}{\textbf{Bending Moment}}
-& \multicolumn{3}{c|}{\textbf{Shear Force}}
-& \multicolumn{2}{c|}{\textbf{Reaction at Supports}}\\
-\cline{2-9}
-
-& \makecell{\textbf{Max}\\\textbf{(kNm)}}
-& \textbf{Girder}
-& \makecell{\textbf{Loc.}\\\textbf{(m)}}
-& \makecell{\textbf{Max}\\\textbf{(kN)}}
-& \textbf{Girder}
-& \makecell{\textbf{Loc.}\\\textbf{(m)}}
-& \makecell{\textbf{Left}}
-& \makecell{\textbf{Right}}\\
-\hline
-\endhead
 
 """ + merged_body + r"""
 
 \hline
-\end{longtable}
+""") + r"""
 \endgroup
 
 \vspace{1em}
-\begin{longtable}{|>{\centering\arraybackslash}p{5.2cm}|>{\centering\arraybackslash}p{5.2cm}|>{\centering\arraybackslash}p{5.2cm}|}
-\caption{\textbf{Reactions at Supports}}
-\hline
-\textbf{Load Case} & \textbf{Left Support (kN)} & \textbf{Right Support (kN)} \\[6pt]
-\hline
+""" + _long_table(r"|>{\centering\arraybackslash}p{5.2cm}|>{\centering\arraybackslash}p{5.2cm}|>{\centering\arraybackslash}p{5.2cm}|", r"Reactions at Supports", r"\textbf{Load Case} & \textbf{Left Support (kN)} & \textbf{Right Support (kN)} \\[6pt]", r"""
  & """ + '' + r""" & """ + '' + r""" \\[6pt]
 \hline
  & """ + '' + r""" & """ + '' + r""" \\[6pt]
 \hline
  & """ + '' + r""" & """ + '' + r""" \\[6pt]
 \hline
-\end{longtable}
+""") + r"""
 
 \vspace{1em}
-\begin{longtable}{|L{7cm}|p{8.5cm}|}
-\caption{\textbf{Deflection Summary (Live Load \& Total Load)}}
-\hline
-\textbf{parameter} & \textbf{value} \\
-\hline
+""" + _long_table(r"|L{7cm}|p{8.5cm}|", r"Deflection Summary (Live Load \& Total Load)", r"\textbf{parameter} & \textbf{value} \\", r"""
 \textnormal{Deflection due to Live Load, $\delta_{LL}$} & """ + _live_str + r""" \\[6pt]
 \hline
 \textnormal{Allowable Live Load Deflection ($\Delta_{allow}$)} & """ + _allow_live_str + r""" \\[6pt]
@@ -172,7 +144,7 @@ A grillage model was used for structural analysis. The deck is idealized as a gr
 \hline
 \textnormal{Total Load Deflection Check Status} & """ + _total_status + r""" \\[6pt]
 \hline
-\end{longtable}
+""") + r"""
 
 \vspace{1em}
 \noindent

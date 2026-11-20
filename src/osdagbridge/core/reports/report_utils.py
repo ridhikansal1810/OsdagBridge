@@ -1,9 +1,34 @@
+from pylatex import LongTable, NoEscape
+
 from osdagbridge.core.utils.common import (
     KEY_MP_GD_MEMBER_ID,
     KEY_MP_GD_SELECT_GIRDER,
     KEY_MP_GIRDER_DEPTH,
     KEY_TS_NO_OF_GIRDERS
 )
+
+
+def _long_table(spec, caption, header, body, label=None):
+    """Longtable whose caption and header row repeat on every page."""
+    table = LongTable(NoEscape(spec))
+    if caption:
+        table.append(NoEscape(r'\caption{\textbf{' + caption + '}}'))
+        if label:
+            table.append(NoEscape(r'\label{' + label + '}'))
+    if header:
+        table.add_hline()
+        table.append(NoEscape(header))
+        table.add_hline()
+    table.append(NoEscape(r'\endfirsthead'))
+    if caption:
+        table.append(NoEscape(r'\caption[]{\textbf{' + caption + r'} (continued)}'))
+    if header:
+        table.add_hline()
+        table.append(NoEscape(header))
+        table.add_hline()
+    table.end_table_header()
+    table.append(NoEscape(body))
+    return table.dumps()
 
 
 def _tex(value):

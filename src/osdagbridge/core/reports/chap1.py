@@ -1,4 +1,4 @@
-from osdagbridge.core.reports.report_utils import _tex
+from osdagbridge.core.reports.report_utils import _tex, _long_table
 
 
 def ch1_project_info(m):
@@ -10,7 +10,7 @@ This section records all project metadata as entered by the designer.
 \section{Project and Design Team Details}
 \label{sec:project-details}
 
-\begin{tabular}{|L{5.5cm}|L{8.5cm}|}
+""" + _long_table(r"|L{5.5cm}|L{8.5cm}|", None, None, r"""
 \hline
 \textbf{Project Name} & """ + _tex(m.project_name) + r""" \\
 \hline
@@ -26,7 +26,7 @@ This section records all project metadata as entered by the designer.
 \hline
 \textbf{Software Version} & OsdagBridge \\
 \hline
-\end{tabular}
+""") + r"""
 
 
 \section{Applicable Codes and Standards}
