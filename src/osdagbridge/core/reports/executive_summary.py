@@ -2,7 +2,7 @@
 # EXECUTIVE SUMMARY
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from osdagbridge.core.reports.report_utils import _fig_or_placeholder, _render_value, _tex, get_girder_entries, _long_table
+from osdagbridge.core.reports.report_utils import _figure, _render_value, _tex, get_girder_entries, _long_table
 from osdagbridge.core.utils.common import (
     KEY_CARRIAGEWAY_WIDTH,
     KEY_SD_SECTION_DESIGNATION,
@@ -55,11 +55,13 @@ def _max_member_efficiency(pair_designs):
 
 
 def executive_summary(input_dict, output_dict, fig_paths) -> str:
-    plan_fig = _fig_or_placeholder(fig_paths.get('girder_top'), 'Figure 1 -- Overall Bridge Plan')
-    cs_fig = _fig_or_placeholder(fig_paths.get('cross_section'),
-                                  'Figure 2 -- Typical Cross-Section (with girder, deck, barriers, footpath)')
-    geom_fig = _fig_or_placeholder(fig_paths.get('final_geometry'),
-                                    'Figure 3 -- 3D View of Bridge Superstructure')
+    plan_fig = _figure(fig_paths.get('girder_top'), 'Figure 1 -- Overall Bridge Plan', width=r'0.9\textwidth', numbered=False)
+    cs_fig = _figure(fig_paths.get('cross_section'),
+                     'Figure 2 -- Typical Cross-Section (with girder, deck, barriers, footpath)',
+                     width=r'0.9\textwidth', numbered=False)
+    geom_fig = _figure(fig_paths.get('final_geometry'),
+                       'Figure 3 -- 3D View of Bridge Superstructure',
+                       width=r'0.9\textwidth', numbered=False)
 
     # All girders share the same section, governing check, and UR.
     # The section designation is produced by the designer pipeline, so it lives

@@ -1,6 +1,6 @@
 import re
 
-from pylatex import LongTable, NoEscape
+from pylatex import Figure, LongTable, NoEscape
 
 from osdagbridge.core.utils.common import (
     KEY_MP_GD_MEMBER_ID,
@@ -117,43 +117,18 @@ def get_girder_entries(input_dict):
     return entries
 
 
-def _fig_or_placeholder(path, caption, width=r'0.9\textwidth'):
-    """Embed figure if path is provided (file already copied to assets), else show placeholder box.
-    path is the relative path as pdflatex will see it (e.g. 'assets/plan.png').
-    """
+def _figure(path, caption, width=r'0.85\textwidth', numbered=True, label=None):
+    """Figure with the image, or a placeholder box when there is no image."""
+    fig = Figure(position='H')
     if path:
-        p = path.replace('\\', '/')
-        return (r'\begin{figure}[H]' + '\n'
-                r'\centering' + '\n'
-                r'\includegraphics[width=' + width + ']{' + p + '}\n'
-                r'\caption*{' + caption + '}\n'
-                r'\end{figure}')
-    return (r'\begin{figure}[H]' + '\n'
-            r'\centering' + '\n'
-            r'\fbox{\parbox{0.97\textwidth}{' + '\n'
-            r'\textit{[ PLACEHOLDER: ' + caption + r' ]}' + '\n'
-            r'}}' + '\n'
-            r'\caption*{' + caption + '}\n'
-            r'\end{figure}')
-
-def _fig_embed(path, caption, width=r'\textwidth', height=None):
-    """Embed a real figure when path is provided (already copied); otherwise use an fbox placeholder."""
-    if path:
-        p = path.replace('\\', '/')
-        opts = 'width=' + width
-        if height:
-            opts += ',height=' + height + ',keepaspectratio'
-        return (r'\begin{figure}[H]' + '\n'
-                r'\vspace{-0.5em}' + '\n'
-                r'\centering' + '\n'
-                r'\includegraphics[' + opts + ']{' + p + '}\n'
-                r'\vspace{0.5em}' + '\n'
-                r'\caption*{\small ' + caption + '}\n'
-                r'\vspace{-0.5em}' + '\n'
-                r'\end{figure}')
-    # fbox placeholder — matches template exactly
-    return (r'\noindent\fbox{\parbox{0.97\textwidth}{' + '\n'
-            r'\textit{[ PLACEHOLDER: ' + caption + r' ]}' + '\n'
-            r'}}')
-
-
+        fig.add_image(path.replace('\\', '/'), width=NoEscape(width))
+    else:
+        fig.append(NoEscape(r'\centering\fbox{\parbox{0.97\textwidth}{\textit{[ PLACEHOLDER: '
+                            + caption + r' ]}}}'))
+    if numbered:
+        fig.add_caption(NoEscape(caption))
+    else:
+        fig.append(NoEscape(r'\caption*{' + caption + '}'))
+    if label:
+        fig.append(NoEscape(r'\label{' + label + '}'))
+    return fig.dumps()

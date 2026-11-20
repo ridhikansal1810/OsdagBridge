@@ -1,3 +1,8 @@
+from pylatex import Figure, MiniPage, NoEscape
+
+from osdagbridge.core.reports.report_utils import _figure
+
+
 def ch6_drawings(fig_paths):
     """Chapter 6 – Drawings and Visualizations.
 
@@ -21,50 +26,35 @@ def ch6_drawings(fig_paths):
       6.14 End Diaphragm -- Bottom Chord Section
     """
 
-    def _sec_fig(path, title, label=None):
-        """Figure block: image first, numbered below. Placeholder if no path."""
-        label_tex = (r'\label{' + label + '}\n') if label else ''
-        if path:
-            p = path.replace('\\', '/')
-            return (r'\begin{figure}[H]' + '\n'
-                    r'\centering' + '\n'
-                    r'\vspace{4pt}' + '\n'
-                    r'\includegraphics[width=0.85\textwidth]{' + p + '}\n'
-                    r'\caption{' + title + '}\n'
-                    + label_tex
-                    + r'\end{figure}' + '\n'
-                    )
-        return (r'\begin{figure}[H]' + '\n'
-                r'\centering' + '\n'
-                r'\fbox{\parbox{0.97\textwidth}{' + '\n'
-                r'\textit{[ PLACEHOLDER: ' + ' ' + title + r' ]}' + '\n'
-                r'}}' + '\n'
-                r'\caption{' + title + '}\n'
-                + label_tex
-                + r'\end{figure}' + '\n')
-
-    sup3d  = _sec_fig(fig_paths.get('final_geometry'),   'Overall 3D Bridge Superstructure',   'fig:bridge-3d')
-    cs     = _sec_fig(fig_paths.get('cross_section'),     'Typical Cross Section',              'fig:cross-section')
-    gtop   = _sec_fig(fig_paths.get('girder_top'),         'Top View',                          'fig:top-view')
-    g3d    = _sec_fig(fig_paths.get('girder_3d'),          '3D View of Plate Girders',          'fig:girder-3d')
-    gxsec  = _sec_fig(fig_paths.get('section_preview'),   'Cross Section of Plate Girder',     'fig:girder-xsec')
-    gside  = _sec_fig(fig_paths.get('stiffener_preview'),  'Side View of Girder',              'fig:girder-side')
-    cbdia  = _sec_fig(fig_paths.get('cb_diagram'),         'Cross Bracing Layout',             'fig:cb-layout')
+    sup3d  = _figure(fig_paths.get('final_geometry'),   'Overall 3D Bridge Superstructure', label='fig:bridge-3d')
+    cs     = _figure(fig_paths.get('cross_section'),     'Typical Cross Section', label='fig:cross-section')
+    gtop   = _figure(fig_paths.get('girder_top'),         'Top View', label='fig:top-view')
+    g3d    = _figure(fig_paths.get('girder_3d'),          '3D View of Plate Girders', label='fig:girder-3d')
+    gxsec  = _figure(fig_paths.get('section_preview'),   'Cross Section of Plate Girder', label='fig:girder-xsec')
+    gside  = _figure(fig_paths.get('stiffener_preview'),  'Side View of Girder', label='fig:girder-side')
+    cbdia  = _figure(fig_paths.get('cb_diagram'),         'Cross Bracing Layout', label='fig:cb-layout')
 
     def _sec_cell(path, title, label=None):
         """One minipage cell: image above, numbered below (for side-by-side row)."""
-        label_tex = (r'\label{' + label + '}') if label else ''
+        cell = MiniPage(width=NoEscape(r'0.31\textwidth'), pos='t')
+        cell.append(NoEscape(r'\centering'))
         if path:
-            p = path.replace('\\', '/')
-            body = r'\includegraphics[width=\linewidth]{' + p + '}'
+            cell.append(NoEscape(r'\includegraphics[width=\linewidth]{' + path.replace('\\', '/') + '}'))
         else:
-            body = r'\fbox{\parbox{0.95\linewidth}{\centering\textit{[ ' + title + r' ]}}}'
-        return (r'\begin{minipage}[t]{0.31\textwidth}' + '\n'
-                r'\centering' + '\n'
-                + body + '\n'
-                r'\captionof{figure}{' + title + '}\n'
-                + label_tex + '\n'
-                r'\end{minipage}')
+            cell.append(NoEscape(r'\fbox{\parbox{0.95\linewidth}{\centering\textit{[ ' + title + r' ]}}}'))
+        cell.append(NoEscape(r'\caption{' + title + '}'))
+        if label:
+            cell.append(NoEscape(r'\label{' + label + '}'))
+        return cell
+
+    def _sec_row(*cells):
+        """Three section views side by side in one figure."""
+        fig = Figure(position='H')
+        for i, cell in enumerate(cells):
+            if i:
+                fig.append(NoEscape(r'\hfill'))
+            fig.append(cell)
+        return fig.dumps()
 
     # Cross Bracing section views (Figures 6.8, 6.9, 6.10) — 3 columns
     cb_bracing = _sec_cell(
@@ -84,16 +74,9 @@ def ch6_drawings(fig_paths):
         'Cross Bracing -- Bottom Chord Section',
         'fig:cb-bottom-chord'
     )
-    cb_sections_row = (
-    r'\noindent' + '\n'
-    + cb_bracing + '\n'
-    + r'\hfill' + '\n'
-    + cb_top + '\n'
-    + r'\hfill' + '\n'
-    + cb_bottom
-)
+    cb_sections_row = _sec_row(cb_bracing, cb_top, cb_bottom)
 
-    eddia  = _sec_fig(fig_paths.get('ed_diagram'),        'End Diaphragm Layout',              'fig:ed-layout')
+    eddia  = _figure(fig_paths.get('ed_diagram'),        'End Diaphragm Layout', label='fig:ed-layout')
 
     # End Diaphragm section views (Figures 6.12, 6.13, 6.14) — 3 columns
     ed_bracing = _sec_cell(
@@ -113,14 +96,7 @@ def ch6_drawings(fig_paths):
         'End Diaphragm -- Bottom Chord Section',
         'fig:ed-bottom-chord'
     )
-    ed_sections_row = (
-    r'\noindent' + '\n'
-    + ed_bracing + '\n'
-    + r'\hfill' + '\n'
-    + ed_top + '\n'
-    + r'\hfill' + '\n'
-    + ed_bottom
-)
+    ed_sections_row = _sec_row(ed_bracing, ed_top, ed_bottom)
 
     return (r"""
 \chapter{Drawings and Visualizations}
